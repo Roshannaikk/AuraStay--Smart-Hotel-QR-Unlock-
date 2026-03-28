@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AuraStay — Keyless Smart Hotel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- ============================================================
+       STEP 2: CSS STYLING
+       All the colors, fonts, layout rules live here
+       ============================================================ -->
+  <style>
+    /* --- RESET & BASE --- */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0a0f;
+      color: #e8e2d9;
+      min-height: 100vh;
+    }
+
+    /* --- LAYOUT WRAPPER --- */
+    .app { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* --- NAVIGATION BAR --- */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 0 2rem;
+      border-bottom: 0.5px solid rgba(255,255,255,0.08);
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #d4af6e;
+      letter-spacing: 0.06em;
+    }
+    .logo span { color: #e8e2d9; }
+    .nav-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+    .nav-tab {
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      background: transparent;
+      color: rgba(232,226,217,0.5);
+      border: none;
+      transition: all 0.2s;
+      letter-spacing: 0.04em;
+    }
+    .nav-tab:hover { color: #e8e2d9; }
+    .nav-tab.active {
+      background: rgba(212,175,110,0.15);
+      color: #d4af6e;
+      border: 0.5px solid rgba(212,175,110,0.3);
+    }
+
+    /* --- PANELS (each tab's content) --- */
+    .panel { display: none; animation: fadeIn 0.3s ease; }
+    .panel.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- TYPOGRAPHY --- */
+    .sec-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: #d4af6e;
+      margin-bottom: 6px;
+    }
+    .sec-sub {
+      font-size: 13px;
+      color: rgba(232,226,217,0.5);
+      margin-bottom: 2rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* --- BUTTONS --- */
+    .gold-btn {
+      padding: 11px 24px;
+      background: linear-gradient(135deg, #c9a55a, #d4af6e);
+      color: #0a0a0f;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .gold-btn:hover { opacity: 0.85; }
+    .wide-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #c9a55a, #d4af6e);
+      color: #0a0a0f;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .wide-btn:hover { opacity: 0.88; }
+    .ghost-btn {
+      padding: 9px 20px;
+      background: transparent;
+      border: 0.5px solid rgba(212,175,110,0.4);
+      border-radius: 10px;
+      color: #d4af6e;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ghost-btn:hover { background: rgba(212,175,110,0.08); }
+
+    /* --- FORM ELEMENTS --- */
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: #0a0a0f;
+      border: 0.5px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: #e8e2d9;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .form-input:focus { outline: none; border-color: rgba(212,175,110,0.5); }
+    .form-label {
+      font-size: 12px;
+      color: rgba(232,226,217,0.5);
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .form-card {
+      background: #13131a;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    /* ============================================================
+       STEP 3A: BOOKING PANEL
+       ============================================================ */
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 2rem;
+    }
+    .room-card {
+      background: #13131a;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .room-card:hover { border-color: rgba(212,175,110,0.4); }
+    .room-card.selected { border: 1.5px solid #d4af6e; }
+    .room-visual {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      background: #1a1a24;
+    }
+    .room-body { padding: 1rem 1.25rem; }
+    .room-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      color: #e8e2d9;
+      margin-bottom: 4px;
+    }
+    .room-price { font-size: 13px; color: #d4af6e; margin-bottom: 8px; }
+    .feat-tag {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(212,175,110,0.1);
+      color: rgba(212,175,110,0.8);
+      border: 0.5px solid rgba(212,175,110,0.2);
+      margin-right: 4px;
+      margin-bottom: 4px;
+      display: inline-block;
+    }
+
+    /* ============================================================
+       STEP 3B: PAYMENT PANEL
+       ============================================================ */
+    .payment-summary {
+      background: #13131a;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .pay-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 0.5px solid rgba(255,255,255,0.06);
+      font-size: 13px;
+      color: rgba(232,226,217,0.7);
+    }
+    .pay-row:last-child { border-bottom: none; font-size: 15px; color: #e8e2d9; font-weight: 500; }
+    .pay-row span:last-child { color: #d4af6e; }
+    .card-icon {
+      padding: 5px 12px;
+      border: 0.5px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      font-size: 11px;
+      color: rgba(232,226,217,0.5);
+      margin-right: 6px;
+    }
+
+    /* ============================================================
+       STEP 3C: DIGITAL KEY PANEL
+       ============================================================ */
+    .key-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    .qr-box {
+      width: 190px;
+      height: 190px;
+      background: #fff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .key-code {
+      font-size: 22px;
+      letter-spacing: 0.18em;
+      color: #d4af6e;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .key-room { font-size: 13px; color: rgba(232,226,217,0.5); margin-bottom: 1.2rem; }
+    .key-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #5dcaa5;
+      margin-bottom: 1.5rem;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #5dcaa5;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+    .scan-btn {
+      padding: 13px 38px;
+      background: linear-gradient(135deg, #c9a55a, #d4af6e);
+      color: #0a0a0f;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+    .scan-btn:hover { opacity: 0.88; transform: scale(1.02); }
+    .scan-result { font-size: 13px; color: #5dcaa5; text-align: center; min-height: 20px; }
+
+    /* ============================================================
+       STEP 3D: TRACKER PANEL
+       ============================================================ */
+    .tracker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: #13131a;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      color: #d4af6e;
+      margin-bottom: 2px;
+    }
+    .stat-label { font-size: 12px; color: rgba(232,226,217,0.5); letter-spacing: 0.04em; }
+    .guest-list { display: flex; flex-direction: column; gap: 10px; }
+    .guest-row {
+      background: #13131a;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(212,175,110,0.15);
+      border: 0.5px solid rgba(212,175,110,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 500; color: #d4af6e;
+      flex-shrink: 0;
+    }
+    .guest-name { font-size: 14px; color: #e8e2d9; margin-bottom: 2px; }
+    .guest-meta { font-size: 12px; color: rgba(232,226,217,0.4); }
+    .status-badge { font-size: 11px; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+    .status-in  { background: rgba(29,158,117,0.15); color: #5dcaa5; border: 0.5px solid rgba(29,158,117,0.3); }
+    .status-out { background: rgba(255,255,255,0.05); color: rgba(232,226,217,0.4); border: 0.5px solid rgba(255,255,255,0.08); }
+    .status-pending { background: rgba(212,175,110,0.1); color: #d4af6e; border: 0.5px solid rgba(212,175,110,0.2); }
+
+    /* ============================================================
+       STEP 3E: ROOM SERVICE PANEL
+       ============================================================ */
+    .service-cats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .cat-btn {
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      background: transparent;
+      color: rgba(232,226,217,0.5);
+      border: 0.5px solid rgba(255,255,255,0.1);
+      transition: all 0.2s;
+    }
+    .cat-btn:hover { color: #e8e2d9; }
+    .cat-btn.active {
+      background: rgba(212,175,110,0.15);
+      color: #d4af6e;
+      border-color: rgba(212,175,110,0.3);
+    }
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+    .svc-card {
+      background: #13131a;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .svc-icon { font-size: 24px; margin-bottom: 2px; }
+    .svc-name { font-size: 14px; color: #e8e2d9; font-weight: 500; }
+    .svc-desc { font-size: 12px; color: rgba(232,226,217,0.45); line-height: 1.5; }
+    .svc-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+    .svc-price { font-size: 13px; color: #d4af6e; }
+    .svc-add {
+      padding: 6px 14px;
+      background: rgba(212,175,110,0.12);
+      color: #d4af6e;
+      border: 0.5px solid rgba(212,175,110,0.25);
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .svc-add:hover { background: rgba(212,175,110,0.22); }
+    .svc-add.added { background: rgba(29,158,117,0.15); color: #5dcaa5; border-color: rgba(29,158,117,0.3); }
+    .cart-bar {
+      background: #13131a;
+      border: 0.5px solid rgba(212,175,110,0.25);
+      border-radius: 14px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    .cart-info { font-size: 13px; color: rgba(232,226,217,0.7); }
+    .cart-info span { color: #d4af6e; font-weight: 500; }
+    .order-toast {
+      display: none;
+      background: rgba(29,158,117,0.15);
+      border: 0.5px solid rgba(29,158,117,0.3);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      color: #5dcaa5;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    /* ============================================================
+       STEP 3F: GUEST PROFILE PANEL
+       ============================================================ */
+    .profile-hero {
+      background: #13131a;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .profile-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: rgba(212,175,110,0.15);
+      border: 1.5px solid rgba(212,175,110,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; color: #d4af6e;
+      flex-shrink: 0;
+    }
+    .profile-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #e8e2d9; margin-bottom: 4px; }
+    .profile-sub { font-size: 13px; color: rgba(232,226,217,0.45); }
+    .profile-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      background: rgba(212,175,110,0.12);
+      color: #d4af6e;
+      border: 0.5px solid rgba(212,175,110,0.25);
+    }
+    .booking-card {
+      background: #13131a;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .booking-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      color: #d4af6e;
+      margin-bottom: 1rem;
+    }
+    .booking-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .bk-item {
+      padding: 1rem;
+      background: #0f0f16;
+      border-radius: 10px;
+      border: 0.5px solid rgba(255,255,255,0.06);
+    }
+    .bk-label { font-size: 11px; color: rgba(232,226,217,0.4); letter-spacing: 0.05em; margin-bottom: 6px; }
+    .bk-value { font-size: 14px; color: #e8e2d9; font-weight: 500; }
+    .bk-value.gold { color: #d4af6e; }
+    .timeline { display: flex; flex-direction: column; }
+    .tl-item { display: flex; gap: 14px; align-items: flex-start; padding: 10px 0; }
+    .tl-item:not(:last-child) { border-bottom: 0.5px solid rgba(255,255,255,0.05); }
+    .tl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .tl-dot.done     { background: #5dcaa5; }
+    .tl-dot.active   { background: #d4af6e; box-shadow: 0 0 0 3px rgba(212,175,110,0.2); }
+    .tl-dot.upcoming { background: rgba(255,255,255,0.15); }
+    .tl-text { font-size: 13px; color: rgba(232,226,217,0.7); }
+    .tl-text strong { color: #e8e2d9; font-weight: 500; }
+    .services-summary {
+      background: #13131a;
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .svc-order-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 0.5px solid rgba(255,255,255,0.05);
+      font-size: 13px;
+      color: rgba(232,226,217,0.7);
+    }
+    .svc-order-row:last-child { border-bottom: none; }
+    .svc-order-row span:last-child { color: #d4af6e; }
+  </style>
+</head>
+
+<body>
+<!-- ============================================================
+     STEP 3: HTML STRUCTURE
+     This is what appears on screen — the skeleton of the website
+     ============================================================ -->
+<div class="app">
+
+  <!-- NAVIGATION -->
+  <div class="nav">
+    <div class="logo">AURA<span>STAY</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('booking')">Book</button>
+      <button class="nav-tab" onclick="switchTab('payment')">Pay</button>
+      <button class="nav-tab" onclick="switchTab('key')">Digital Key</button>
+      <button class="nav-tab" onclick="switchTab('tracker')">Tracker</button>
+      <button class="nav-tab" onclick="switchTab('service')">Room Service</button>
+      <button class="nav-tab" onclick="switchTab('profile')">My Profile</button>
+    </div>
+  </div>
+
+  <!-- ====== PANEL 1: BOOKING ====== -->
+  <div class="panel active" id="panel-booking">
+    <p class="sec-title">Choose Your Suite</p>
+    <p class="sec-sub">Select a room, pick your dates — no card, no key at reception</p>
+
+    <div class="rooms-grid">
+      <!-- Room Card 1 -->
+      <div class="room-card" onclick="selectRoom(this,'Navi Mumbai Marriott','INR 5699/night','🛏️',189)">
+        <div class="room-visual">🛏️</div>
+        <div class="room-body">
+          <div class="room-name">Navi Mumbai Marriott</div>
+          <div class="room-price">INR 5699/night</div>
+          <span class="feat-tag">King Bed</span>
+          <span class="feat-tag">City View</span>
+          <span class="feat-tag">Smart Lock</span>
+        </div>
+      </div>
+      <!-- Room Card 2 -->
+      <div class="room-card" onclick="selectRoom(this,'Courtyard by Marriott ','INR 8099/night','🌊',320)">
+        <div class="room-visual">🌊</div>
+        <div class="room-body">
+          <div class="room-name">Courtyard by Marriott</div>
+          <div class="room-price">INR 8099/night</div>
+          <span class="feat-tag">Private Pool</span>
+          <span class="feat-tag">Ocean View</span>
+          <span class="feat-tag">Smart Lock</span>
+        </div>
+      </div>
+      <!-- Room Card 3 -->
+      <div class="room-card" onclick="selectRoom(this,'Ramada by Wyndham','INR 11,636','🌆',580)">
+        <div class="room-visual">🌆</div>
+        <div class="room-body">
+          <div class="room-name">King room with Highest Floor</div>
+          <div class="room-price">INR 11,636</div>
+          <span class="feat-tag">Rooftop</span>
+          <span class="feat-tag">Butler</span>
+          <span class="feat-tag">Smart Lock</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guest Details Form -->
+    <div class="form-card">
+      <div class="form-grid">
+        <div><label class="form-label">FULL NAME</label><input class="form-input" id="guestName" placeholder="e.g. Roshan" /></div>
+        <div><label class="form-label">EMAIL</label><input class="form-input" id="guestEmail" placeholder="roshan@email.com" /></div>
+        <div><label class="form-label">CHECK-IN DATE</label><input class="form-input" type="date" id="checkin" /></div>
+        <div><label class="form-label">CHECK-OUT DATE</label><input class="form-input" type="date" id="checkout" /></div>
+      </div>
+      <button class="wide-btn" onclick="proceedToPayment()">Continue to Payment →</button>
+    </div>
+  </div>
+
+  <!-- ====== PANEL 2: PAYMENT ====== -->
+  <div class="panel" id="panel-payment">
+    <p class="sec-title">Secure Payment</p>
+    <p class="sec-sub">Pay once — your digital key is generated instantly</p>
+
+    <div class="payment-summary">
+      <div class="pay-row"><span>Room</span><span id="payRoom">—</span></div>
+      <div class="pay-row"><span>Check-in</span><span id="payIn">—</span></div>
+      <div class="pay-row"><span>Check-out</span><span id="payOut">—</span></div>
+      <div class="pay-row"><span>Nights</span><span id="payNights">—</span></div>
+      <div class="pay-row"><span>Total</span><span id="payTotal">—</span></div>
+    </div>
+
+    <div class="form-card">
+      <div style="margin-bottom:12px;">
+        <span class="card-icon">VISA</span>
+        <span class="card-icon">Mastercard</span>
+        <span class="card-icon">PayPal</span>
+        <span class="card-icon">Apple Pay</span>
+      </div>
+      <div class="form-grid">
+        <div style="grid-column:1/-1">
+          <label class="form-label">CARD NUMBER</label>
+          <input class="form-input" placeholder="•••• •••• •••• ••••" maxlength="19" oninput="formatCard(this)" />
+        </div>
+        <div><label class="form-label">EXPIRY</label><input class="form-input" placeholder="MM / YY" maxlength="7" /></div>
+        <div><label class="form-label">CVV</label><input class="form-input" placeholder="•••" maxlength="3" type="password" /></div>
+      </div>
+      <button class="wide-btn" onclick="processPayment()">Pay & Generate Digital Key →</button>
+    </div>
+    <div style="text-align:center;margin-top:1rem;">
+      <button class="ghost-btn" onclick="switchTab('booking')">← Back</button>
+    </div>
+  </div>
+
+  <!-- ====== PANEL 3: DIGITAL KEY ====== -->
+  <div class="panel" id="panel-key">
+    <p class="sec-title">Your Digital Key</p>
+    <p class="sec-sub">Scan at the door — no card, no staff, no waiting</p>
+    <div class="key-wrap">
+      <div class="qr-box"><canvas id="qrCanvas" width="160" height="160"></canvas></div>
+      <div class="key-code" id="keyCode">AUR-0000</div>
+      <div class="key-room" id="keyRoom">Room not assigned</div>
+      <div class="key-status"><div class="dot"></div> Smart lock connected · Ready to scan</div>
+      <button class="scan-btn" onclick="simulateScan()">Simulate Door Scan</button>
+      <div class="scan-result" id="scanResult"></div>
+    </div>
+  </div>
+
+  <!-- ====== PANEL 4: TRACKER ====== -->
+  <div class="panel" id="panel-tracker">
+    <p class="sec-title">Guest Tracker</p>
+    <p class="sec-sub">Live check-in & check-out status across all rooms</p>
+    <div class="tracker-grid">
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">TOTAL ROOMS</div></div>
+      <div class="stat-card"><div class="stat-num" id="statIn">8</div><div class="stat-label">CHECKED IN</div></div>
+      <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">CHECKED OUT</div></div>
+      <div class="stat-card"><div class="stat-num" id="statPending">1</div><div class="stat-label">ARRIVING TODAY</div></div>
+    </div>
+    <div class="guest-list" id="guestList">
+      <div class="guest-row">
+        <div class="avatar">SM</div>
+        <div style="flex:1"><div class="guest-name">Dharmi Thakkar</div><div class="guest-meta">Ramada by Wyndham · Room 2302 Scanned in 09:14am</div></div>
+        <span class="status-badge status-in">Checked In</span>
+      </div>
+      <div class="guest-row">
+        <div class="avatar">JK</div>
+        <div style="flex:1"><div class="guest-name"> Neelesh mishra</div><div class="guest-meta">Ibis Navi Mumbai · Room 1501 · Scanned in 11:32am</div></div>
+        <span class="status-badge status-in">Checked In</span>
+      </div>
+      <div class="guest-row">
+        <div class="avatar">LP</div>
+        <div style="flex:1"><div class="guest-name">Lena Patel</div><div class="guest-meta">Deluxe King Suite · Room 110 · Checked out 08:00am</div></div>
+        <span class="status-badge status-out">Checked Out</span>
+      </div>
+      <div class="guest-row">
+        <div class="avatar">RN</div>
+        <div style="flex:1"><div class="guest-name">Rafael Nunes</div><div class="guest-meta">Deluxe King Suite · Room 112 · Arriving today</div></div>
+        <span class="status-badge status-pending">Pending</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== PANEL 5: ROOM SERVICE ====== -->
+  <div class="panel" id="panel-service">
+    <p class="sec-title">Room Service</p>
+    <p class="sec-sub">Order anything to your suite — delivered in 20 minutes</p>
+    <div class="service-cats">
+      <button class="cat-btn active" onclick="filterCat(this,'all')">All</button>
+      <button class="cat-btn" onclick="filterCat(this,'food')">Food & Drinks</button>
+      <button class="cat-btn" onclick="filterCat(this,'spa')">Spa & Wellness</button>
+      <button class="cat-btn" onclick="filterCat(this,'laundry')">Laundry</button>
+      <button class="cat-btn" onclick="filterCat(this,'concierge')">Concierge</button>
+    </div>
+    <div class="service-grid" id="serviceGrid"></div>
+    <div class="cart-bar" id="cartBar" style="display:none">
+      <div class="cart-info"><span id="cartCount">0</span> items · Total <span id="cartTotal">$0</span></div>
+      <button class="gold-btn" onclick="placeOrder()">Place Order →</button>
+    </div>
+    <div class="order-toast" id="orderToast">Your order has been placed! Estimated delivery: 20 minutes.</div>
+  </div>
+
+  <!-- ====== PANEL 6: GUEST PROFILE ====== -->
+  <div class="panel" id="panel-profile">
+    <p class="sec-title">My Profile</p>
+    <p class="sec-sub">Your stay at a glance — everything in one place</p>
+    <div class="profile-hero">
+      <div class="profile-avatar" id="profileAvatar">?</div>
+      <div>
+        <div class="profile-name" id="profileName">No booking yet</div>
+        <div class="profile-sub" id="profileEmail">Complete a booking to see your profile</div>
+        <div class="profile-badge" id="profileBadge">AuraStay Guest</div>
+      </div>
+    </div>
+    <div class="booking-card">
+      <div class="booking-title">Current Booking</div>
+      <div class="booking-grid">
+        <div class="bk-item"><div class="bk-label">ROOM</div><div class="bk-value gold" id="profRoom">—</div></div>
+        <div class="bk-item"><div class="bk-label">ROOM KEY</div><div class="bk-value gold" id="profKey">—</div></div>
+        <div class="bk-item"><div class="bk-label">CHECK-IN</div><div class="bk-value" id="profIn">—</div></div>
+        <div class="bk-item"><div class="bk-label">CHECK-OUT</div><div class="bk-value" id="profOut">—</div></div>
+        <div class="bk-item"><div class="bk-label">NIGHTS</div><div class="bk-value" id="profNights">—</div></div>
+        <div class="bk-item"><div class="bk-label">TOTAL PAID</div><div class="bk-value gold" id="profTotal">—</div></div>
+      </div>
+    </div>
+    <div class="booking-card">
+      <div class="booking-title">Stay Timeline</div>
+      <div class="timeline" id="stayTimeline">
+        <div class="tl-item">
+          <div class="tl-dot upcoming"></div>
+          <div class="tl-text"><strong>Booking confirmed</strong> — complete a booking first</div>
+        </div>
+      </div>
+    </div>
+    <div class="services-summary" id="servicesSummary" style="display:none">
+      <div class="booking-title" style="margin-bottom:1rem;">Room Service Orders</div>
+      <div id="orderedItems"></div>
+      <div class="svc-order-row" style="margin-top:8px;">
+        <span style="font-weight:500;color:#e8e2d9;">Total charged</span>
+        <span id="ordersTotal">$0</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .app -->
+
+
+<!-- ============================================================
+     STEP 4: JAVASCRIPT — THE BRAIN
+     Makes everything interactive: tabs, booking, QR, orders
+     ============================================================ -->
+<script>
+
+  /* ---------- DATA: All room service items ---------- */
+  const services = [
+    { cat:'food',      icon:'🍳', name:'Full English Breakfast',  desc:'Eggs, bacon, toast, OJ & coffee',            price: 28  },
+    { cat:'food',      icon:'🥗', name:'Caesar Salad',             desc:'Romaine, parmesan, croutons',                price: 18  },
+    { cat:'food',      icon:'🍷', name:'Wine & Cheese Board',      desc:'3 wines & 5 curated cheeses',               price: 55  },
+    { cat:'food',      icon:'☕', name:'Premium Coffee Tray',      desc:'Espresso, cappuccino & pastries for two',    price: 22  },
+    { cat:'spa',       icon:'💆', name:'In-Room Massage',          desc:'60-min deep tissue by certified therapist',  price: 120 },
+    { cat:'spa',       icon:'🛁', name:'Luxury Bath Setup',        desc:'Rose petals, bath salts, candles & champagne', price: 65 },
+    { cat:'spa',       icon:'🧴', name:'Facial Treatment',         desc:'45-min hydrating facial in your suite',      price: 90  },
+    { cat:'laundry',   icon:'👔', name:'Express Pressing',         desc:'Up to 5 garments, ready in 2 hours',         price: 35  },
+    { cat:'laundry',   icon:'🧺', name:'Full Laundry Service',     desc:'Wash, dry & fold, returned same day',        price: 48  },
+    { cat:'concierge', icon:'🚗', name:'Private Airport Transfer', desc:'Luxury sedan to/from airport',               price: 95  },
+    { cat:'concierge', icon:'🎭', name:'Restaurant Reservation',   desc:'We book the best table in the city for you', price: 0   },
+    { cat:'concierge', icon:'🌸', name:'Flower Arrangement',       desc:'Fresh seasonal blooms delivered to suite',   price: 42  },
+  ];
+
+  /* ---------- STATE VARIABLES ---------- */
+  let cart        = {};       // items added to cart
+  let bookingData = {};       // guest booking info
+  let guestKey    = 'AUR-0000';
+  let ordersPlaced = [];      // completed orders
+
+  /* ---------- TAB SWITCHER ---------- */
+  function switchTab(t) {
+    const tabs = ['booking','payment','key','tracker','service','profile'];
+    document.querySelectorAll('.nav-tab').forEach((btn, i) => {
+      btn.classList.toggle('active', tabs[i] === t);
+    });
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + t).classList.add('active');
+  }
+
+  /* ---------- ROOM SELECTION ---------- */
+  function selectRoom(el, name, price, icon, num) {
+    document.querySelectorAll('.room-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    bookingData.room  = name;
+    bookingData.price = num;
+    bookingData.icon  = icon;
+  }
+
+  /* ---------- FORMAT CARD NUMBER ---------- */
+  function formatCard(el) {
+    let v = el.value.replace(/\D/g,'').substring(0,16);
+    el.value = v.replace(/(.{4})/g,'$1 ').trim();
+  }
+
+  /* ---------- GO TO PAYMENT ---------- */
+  function proceedToPayment() {
+    if (!bookingData.room) { alert('Please select a room first.'); return; }
+    const name = document.getElementById('guestName').value;
+    const email = document.getElementById('guestEmail').value;
+    const ci   = document.getElementById('checkin').value;
+    const co   = document.getElementById('checkout').value;
+    if (!name || !ci || !co) { alert('Please fill in all details.'); return; }
+    const nights = Math.max(1, Math.round((new Date(co) - new Date(ci)) / 86400000));
+    bookingData = { ...bookingData, name, email, ci, co, nights };
+    document.getElementById('payRoom').textContent   = bookingData.room;
+    document.getElementById('payIn').textContent     = ci;
+    document.getElementById('payOut').textContent    = co;
+    document.getElementById('payNights').textContent = nights + ' night' + (nights > 1 ? 's' : '');
+    document.getElementById('payTotal').textContent  = '$' + (bookingData.price * nights).toLocaleString();
+    switchTab('payment');
+  }
+
+  /* ---------- PROCESS PAYMENT & GENERATE KEY ---------- */
+  function processPayment() {
+    guestKey = 'AUR-' + Math.floor(1000 + Math.random() * 9000);
+    bookingData.key = guestKey;
+    document.getElementById('keyCode').textContent = guestKey;
+    document.getElementById('keyRoom').textContent = bookingData.room + ' · Check-in: ' + bookingData.ci;
+    drawQR(guestKey);
+    updateProfile();
+    // Add to tracker
+    const initials = (bookingData.name || 'G').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+    const row = document.createElement('div');
+    row.className = 'guest-row';
+    row.innerHTML = `<div class="avatar">${initials}</div>
+      <div style="flex:1">
+        <div class="guest-name">${bookingData.name}</div>
+        <div class="guest-meta">${bookingData.room} · Key: ${guestKey} · Arriving ${bookingData.ci}</div>
+      </div>
+      <span class="status-badge status-pending">Pending</span>`;
+    document.getElementById('guestList').prepend(row);
+    document.getElementById('statPending').textContent =
+      parseInt(document.getElementById('statPending').textContent) + 1;
+    switchTab('key');
+  }
+
+  /* ---------- SIMULATE DOOR SCAN ---------- */
+  function simulateScan() {
+    const res = document.getElementById('scanResult');
+    res.style.color = '#d4af6e';
+    res.textContent = 'Scanning...';
+    setTimeout(() => {
+      res.style.color = '#5dcaa5';
+      res.textContent = '✓ Identity verified — door unlocked. Welcome!';
+      const rows = document.querySelectorAll('#guestList .guest-row');
+      if (rows[0]) {
+        const badge = rows[0].querySelector('.status-badge');
+        const meta  = rows[0].querySelector('.guest-meta');
+        if (badge && badge.classList.contains('status-pending')) {
+          badge.className   = 'status-badge status-in';
+          badge.textContent = 'Checked In';
+          if (meta) meta.textContent = meta.textContent.replace('Arriving','Scanned in');
+          document.getElementById('statIn').textContent =
+            parseInt(document.getElementById('statIn').textContent) + 1;
+          document.getElementById('statPending').textContent =
+            Math.max(0, parseInt(document.getElementById('statPending').textContent) - 1);
+        }
+      }
+    }, 1800);
+  }
+
+  /* ---------- DRAW QR CODE ON CANVAS ---------- */
+  function drawQR(code) {
+    const canvas = document.getElementById('qrCanvas');
+    const ctx    = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 160, 160);
+    const seed = code.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+    function rnd(n) { let x = Math.sin(n + seed) * 10000; return x - Math.floor(x); }
+    const cell = 14, cols = 10;
+    for (let r = 0; r < cols; r++) {
+      for (let c = 0; c < cols; c++) {
+        const on = (r<3&&c<3)||(r<3&&c>6)||(r>6&&c<3) || rnd(r*cols+c) > 0.45;
+        ctx.fillStyle = on ? '#1a1a24' : '#fff';
+        ctx.fillRect(c*cell+4, r*cell+4, cell-1, cell-1);
+      }
+    }
+    // Corner finder squares
+    [[0,0],[0,7],[7,0]].forEach(([r,c]) => {
+      ctx.fillStyle='#1a1a24'; ctx.fillRect(c*cell+4,  r*cell+4,  cell*3-1, cell*3-1);
+      ctx.fillStyle='#fff';    ctx.fillRect(c*cell+6,  r*cell+6,  cell*3-5, cell*3-5);
+      ctx.fillStyle='#1a1a24'; ctx.fillRect(c*cell+8,  r*cell+8,  cell*3-9, cell*3-9);
+    });
+  }
+
+  /* ---------- ROOM SERVICE: RENDER ITEMS ---------- */
+  function renderServices(cat) {
+    const grid     = document.getElementById('serviceGrid');
+    const filtered = cat === 'all' ? services : services.filter(s => s.cat === cat);
+    grid.innerHTML  = filtered.map(s => {
+      const id     = services.indexOf(s);
+      const inCart = cart[id];
+      return `<div class="svc-card">
+        <div class="svc-icon">${s.icon}</div>
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-desc">${s.desc}</div>
+        <div class="svc-footer">
+          <span class="svc-price">${s.price === 0 ? 'Free' : '$' + s.price}</span>
+          <button class="svc-add${inCart ? ' added' : ''}" onclick="toggleCart(${id})">
+            ${inCart ? 'Added ✓' : 'Add'}
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ---------- CART TOGGLE ---------- */
+  function toggleCart(id) {
+    if (cart[id]) delete cart[id]; else cart[id] = services[id];
+    updateCart();
+    renderServices(document.querySelector('.cat-btn.active').dataset.cat || 'all');
+  }
+
+  /* ---------- FILTER CATEGORY ---------- */
+  function filterCat(btn, cat) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    btn.dataset.cat = cat;
+    renderServices(cat);
+  }
+
+  /* ---------- UPDATE CART BAR ---------- */
+  function updateCart() {
+    const ids   = Object.keys(cart);
+    const total = ids.reduce((a, id) => a + cart[id].price, 0);
+    document.getElementById('cartCount').textContent = ids.length;
+    document.getElementById('cartTotal').textContent = '$' + total;
+    document.getElementById('cartBar').style.display = ids.length ? 'flex' : 'none';
+  }
+
+  /* ---------- PLACE ORDER ---------- */
+  function placeOrder() {
+    Object.keys(cart).forEach(id => ordersPlaced.push(cart[id]));
+    cart = {};
+    updateCart();
+    renderServices('all');
+    const toast = document.getElementById('orderToast');
+    toast.style.display = 'block';
+    setTimeout(() => toast.style.display = 'none', 4000);
+    updateProfileOrders();
+  }
+
+  /* ---------- UPDATE PROFILE ORDERS SECTION ---------- */
+  function updateProfileOrders() {
+    if (!ordersPlaced.length) return;
+    const sum   = document.getElementById('servicesSummary');
+    const list  = document.getElementById('orderedItems');
+    const total = ordersPlaced.reduce((a, s) => a + s.price, 0);
+    list.innerHTML = ordersPlaced.map(s =>
+      `<div class="svc-order-row">
+        <span>${s.icon} ${s.name}</span>
+        <span>${s.price === 0 ? 'Free' : '$' + s.price}</span>
+      </div>`
+    ).join('');
+    document.getElementById('ordersTotal').textContent = '$' + total;
+    sum.style.display = 'block';
+  }
+
+  /* ---------- UPDATE GUEST PROFILE ---------- */
+  function updateProfile() {
+    const n       = bookingData.name || 'Guest';
+    const initials= n.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('profileAvatar').textContent = initials;
+    document.getElementById('profileName').textContent   = n;
+    document.getElementById('profileEmail').textContent  = bookingData.email || 'guest@aurastay.com';
+    document.getElementById('profileBadge').textContent  = 'AuraStay Gold Member';
+    document.getElementById('profRoom').textContent      = bookingData.room   || '—';
+    document.getElementById('profKey').textContent       = bookingData.key    || '—';
+    document.getElementById('profIn').textContent        = bookingData.ci     || '—';
+    document.getElementById('profOut').textContent       = bookingData.co     || '—';
+    document.getElementById('profNights').textContent    = (bookingData.nights || '—') + (bookingData.nights ? ' nights' : '');
+    document.getElementById('profTotal').textContent     =
+      bookingData.price && bookingData.nights
+        ? '$' + (bookingData.price * bookingData.nights).toLocaleString()
+        : '—';
+    document.getElementById('stayTimeline').innerHTML = `
+      <div class="tl-item"><div class="tl-dot done"></div><div class="tl-text"><strong>Booking confirmed</strong> — ${bookingData.room}</div></div>
+      <div class="tl-item"><div class="tl-dot done"></div><div class="tl-text"><strong>Payment received</strong> — $${(bookingData.price * bookingData.nights).toLocaleString()} charged</div></div>
+      <div class="tl-item"><div class="tl-dot active"></div><div class="tl-text"><strong>Digital key issued</strong> — ${bookingData.key} · Ready to scan</div></div>
+      <div class="tl-item"><div class="tl-dot upcoming"></div><div class="tl-text"><strong>Check-in</strong> — ${bookingData.ci}</div></div>
+      <div class="tl-item"><div class="tl-dot upcoming"></div><div class="tl-text"><strong>Check-out</strong> — ${bookingData.co}</div></div>`;
+  }
+
+  /* ---------- INITIALISE ON PAGE LOAD ---------- */
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('checkin').value = today;
+  const tom = new Date(); tom.setDate(tom.getDate() + 2);
+  document.getElementById('checkout').value = tom.toISOString().split('T')[0];
+  drawQR('AUR-0000');
+  renderServices('all');
+
+  async function processPayment() {
+  try {
+    // 1. CREATE USER
+    const userRes = await fetch('http://localhost:3000/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: bookingData.name,
+        email: bookingData.email
+      })
+    });
+    const user = await userRes.json();
+
+    // 2. CREATE ORDER
+    const total = bookingData.price * bookingData.nights;
+
+    const orderRes = await fetch('http://localhost:3000/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.userId,
+        room: bookingData.room,
+        checkin: bookingData.ci,
+        checkout: bookingData.co,
+        total
+      })
+    });
+    const order = await orderRes.json();
+
+    // 3. PAYMENT
+    await fetch('http://localhost:3000/api/payments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId: order.orderId,
+        amount: total
+      })
+    });
+
+    // 4. GENERATE KEY
+    const keyRes = await fetch('http://localhost:3000/api/keys', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.userId
+      })
+    });
+    const key = await keyRes.json();
+
+    // UI UPDATE
+    guestKey = key.keyCode;
+    bookingData.key = guestKey;
+
+    document.getElementById('keyCode').textContent = guestKey;
+    document.getElementById('keyRoom').textContent =
+      bookingData.room + ' · Check-in: ' + bookingData.ci;
+
+    drawQR(guestKey);
+    updateProfile();
+    switchTab('key');
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Payment failed");
+  }
+}
+</script>
+</body>
+</html>
