@@ -1,84 +1,39 @@
-const express = require('express');
-const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
-
-// ✅ IMPORT SERVICES (MATCH YOUR FILE NAMES)
-const userService = require('../services/user-service/user');
-const orderService = require('../services/order-service/orderService'); // ✅ fixed
-const paymentService = require('../services/payment-service/payment');
-const keyService = require('../services/key-service/key');
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-// ================= DATABASE =================
-const db = new sqlite3.Database('./server/database.db', (err) => {
-  if (err) {
-    console.error("❌ DB Error:", err.message);
-  } else {
-    console.log("✅ Connected to SQLite database");
-  }
+// ✅ DATABASE
+const db = new sqlite3.Database("./server/database.db", (err) => {
+  if (err) console.error(err.message);
+  else console.log("✅ SQLite connected");
 });
 
+// ✅ Serve frontend
+app.use(express.static(path.join(__dirname, "../frontend")));
 
-// ================= CREATE TABLES =================
-db.serialize(() => {
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
-      email TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS orders (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      userId INTEGER,
-      room TEXT,
-      checkin TEXT,
-      checkout TEXT,
-      total INTEGER
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS payments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      orderId INTEGER,
-      amount INTEGER,
-      status TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS keys (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      userId INTEGER,
-      keyCode TEXT
-    )
-  `);
-
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
+// ✅ IMPORT SERVICES (PASS DB)
+const orderRoutes = require('../services/order-service/orderService');
 
-// ================= ROUTES =================
-app.use('/api/users', userService(db));
-app.use('/api/orders', orderService(db));
-app.use('/api/payments', paymentService(db));
-app.use('/api/keys', keyService(db));
+// 👉 same for others (if using DB)
+const userService = require("../services/user-service/user")(db);
+const paymentService = require("../services/payment-service/payment")(db);
+const keyService = require("../services/key-service/key")(db);
 
+// ✅ ROUTES
+app.use("/api/orders", orderService);
+app.use("/api/users", userService);
+app.use("/api/payments", paymentService);
+app.use("/api/keys", keyService);
 
-// ================= TEST ROUTE =================
-app.get('/', (req, res) => {
-  res.send("🚀 AuraStay Backend Running with SQLite");
-});
-
-
-// ================= START SERVER =================
 app.listen(3000, () => {
-  console.log("🔥 Server running at http://localhost:3000");
+  console.log("🚀 Server running on http://localhost:3000");
 });
