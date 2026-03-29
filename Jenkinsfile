@@ -5,7 +5,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat 'pip install -r requirements.txt'
+                bat 'npm install'
             }
         }
 
@@ -17,7 +17,7 @@ pipeline {
 
         stage('Run Container') {
             steps {
-                bat 'docker run -d -p 5003:5000 aurastay-app'
+                bat 'docker run -d -p 5003:3000 aurastay-app'
             }
         }
     }
