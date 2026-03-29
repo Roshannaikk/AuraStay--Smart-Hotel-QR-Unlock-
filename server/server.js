@@ -21,19 +21,18 @@ app.get("/", (req, res) => {
 });
 
 // ✅ IMPORT SERVICES (PASS DB)
-const orderRoutes = require('../services/order-service/orderService');
-
-// 👉 same for others (if using DB)
+const orderRoutes = require("../services/order-service/orderService")(db);
 const userService = require("../services/user-service/user")(db);
 const paymentService = require("../services/payment-service/payment")(db);
 const keyService = require("../services/key-service/key")(db);
 
 // ✅ ROUTES
-app.use("/api/orders", orderService);
+app.use("/api/orders", orderRoutes);
 app.use("/api/users", userService);
 app.use("/api/payments", paymentService);
 app.use("/api/keys", keyService);
 
+// ✅ START SERVER
 app.listen(3000, () => {
   console.log("🚀 Server running on http://localhost:3000");
 });
